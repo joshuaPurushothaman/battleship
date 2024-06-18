@@ -35,8 +35,8 @@ impl Display for GridCell {
 }
 
 pub struct Board {
-    ships: [Ship; 5],
     cells: [[GridCell; 10]; 10],
+    ships: [Ship; 5],
 }
 
 impl Board {
