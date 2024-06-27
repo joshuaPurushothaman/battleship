@@ -3,7 +3,23 @@ pub mod client;
 pub mod server;
 
 use battleship::*;
-use std::{env, io};
+use std::{env, io, io::prelude::*};
+use std::fmt::{Display, Formatter};
+
+#[derive(Debug)]
+enum BattleshipError {
+    InvalidOption(String)
+}
+
+impl Display for BattleshipError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
+        match self {
+            Self::InvalidOption(msg) => write!(f, "Error: Invalid option - {}", msg)
+        }
+    }
+}
+
+impl std::error::Error for BattleshipError { }
 
 #[derive(Debug)]
 enum Player {
@@ -20,7 +36,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         args[1].clone()
     } else {
         print!("Do you want to or Host your own game, or Join someone else's? [h/j] (default: h) ");
-
+        io::stdout().flush()?;
         let mut choice = String::new();
         io::stdin().read_line(&mut choice)?;
 
@@ -30,7 +46,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let user_mode = match user_mode_str.trim().to_lowercase().as_str() {
         "h" => Player::Server,
         "j" => Player::Client,
-        _ => panic!("Option not recognized: '{user_mode_str}'. Choose h for host, or j for join"),
+        _ => return Err(Box::new(BattleshipError::InvalidOption("Option not recognized: '{user_mode_str}'. Choose h for host, or j for join".to_string())))
     };
 
     println!("Selected user mode is {:#?}.", user_mode);
